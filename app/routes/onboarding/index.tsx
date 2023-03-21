@@ -1,7 +1,7 @@
+import axios from 'axios';
 import { FC, useEffect, useState } from 'react';
 import { useLoaderData, useActionData } from '@remix-run/react';
-import { json, redirect, ActionFunction } from '@remix-run/node';
-import axios from 'axios';
+import { json, ActionFunction } from '@remix-run/node';
 import UserCalendarDetails from './UserCalendarDetails';
 import UserDetails from './UserDetails';
 

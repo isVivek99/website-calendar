@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { useState, useCallback } from 'react';
+import { useLoaderData } from '@remix-run/react';
 import { CalendarEventProps, CalEvent, UpdateEvent } from '~/utils/interfaces';
 import EventModal from '~/components/common/eventModal';
 import RdsCalendar from '~/components/common/rdsCalendar';

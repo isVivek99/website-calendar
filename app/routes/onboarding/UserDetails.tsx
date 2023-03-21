@@ -25,7 +25,6 @@ const isUsernameAvailable = async (host: string, token: string, username: string
   try {
     const response = await axios.get(url, {
       headers: {
-        // Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       withCredentials: true,
