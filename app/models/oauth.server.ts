@@ -4,3 +4,5 @@ export const getOAuthLinks = async () => {
     MICROSOFT_OAUTH: process.env.MICROSOFT_OAUTH_LINK,
   };
 };
+
+export const getCalendarEvents = async () => {};

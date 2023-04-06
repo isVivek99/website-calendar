@@ -1,8 +1,8 @@
 import axios from 'axios';
-
-// eslint-disable-next-line import/prefer-default-export
-export async function getEvents(token: String) {
-  const url = `${process.env.API_HOST}/events/1`;
+import { userData } from '~/types/usertypes';
+// eslint-disable-next-line import/prefer-default-export, consistent-return
+export async function getCalendarEvents(token: String, id: number): Promise<userData | undefined> {
+  const url = `${process.env.API_HOST}/events/calendar/${id}?startTime=1677609000000`;
 
   try {
     const response = await axios.get(url, {
@@ -12,8 +12,8 @@ export async function getEvents(token: String) {
       },
     });
 
-    return response.data;
+    return response.data.data;
   } catch (error) {
-    return error;
+    console.error(error);
   }
 }
