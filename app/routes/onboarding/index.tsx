@@ -21,11 +21,10 @@ type LoaderData = {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = Object.fromEntries(await request.formData());
-  //   console.log('fullname:', formData);
+
   const url = `${process.env.API_HOST}/api/v1/users/self`;
   const { username, firstname, lastname, timezone } = formData;
-  //   const firstname = (fullname as string).split(' ')[0];
-  //   const lastname = (fullname as string).split(' ')[1];
+
   console.log(formData);
 
   const errors = {
