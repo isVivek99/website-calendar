@@ -8,7 +8,8 @@ import styles from '~/components/common/eventModal/styles.css';
 import { getCalendarEvents } from '~/models/events.server';
 import { getUserDetails } from '~/models/user.server';
 import { backendCalEvent } from '~/types/calendartypes';
-import { useStore } from '~/store/eventStore';
+import { eventStore, EventState } from '~/store/eventStore';
+import { CalEvent } from '~/types/calendartypes';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
@@ -67,8 +68,8 @@ const getDates = (userEvents: backendCalEvent[]) =>
 
 export default function Index() {
   const userEvents = useLoaderData<typeof loader>();
-  const bears = useStore((state: Record<'bear', number>): number => state.bears);
-  console.log('bears:', bears);
+  const events = eventStore((state: EventState): CalEvent[] => state.events);
+  console.log('events:', events);
 
   return (
     <div className="">

@@ -26,7 +26,7 @@ import RdsCalendar from '~/components/common/rdsCalendar';
 // ];
 
 const Calendar = ({ calendarEvents }: CalEvent[]) => {
-  console.log(calendarEvents);
+  // console.log(calendarEvents);
 
   const [eventsList, setEventsList] = useState<CalEvent[]>(calendarEvents);
   const [calendarEvent, setCalendarEvent] = useState<CalendarEventProps>();

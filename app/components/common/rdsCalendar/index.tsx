@@ -22,7 +22,6 @@ const RdsCalendar = ({
   const RbcCalendar = withDragAndDrop(Calendar);
   const onEventDrop: withDragAndDropProps['onEventDrop'] = (ev: UpdateEvent) => updateEvent(ev);
   const onEventResize: withDragAndDropProps['onEventResize'] = (ev: UpdateEvent) => updateEvent(ev);
-  console.log(eventsList);
 
   return (
     <RbcCalendar
