@@ -1,10 +1,12 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 import { Form, useSubmit, useActionData } from '@remix-run/react';
+import { ActionFunction, json, redirect } from '@remix-run/node';
 import debounce from 'lodash.debounce';
 import axios from 'axios';
 import UserInput from '../../components/common/userInput';
 import Dropdown from '../../components/common/dropdown';
 import { Button } from '../../components/Button';
+import { initialUserDetails } from '~/constants/userOnboarding';
 
 interface UserFormInterface {
   username: string;
@@ -15,13 +17,12 @@ interface UserFormInterface {
 
 interface UserDetailsInterface {
   apiHost: string;
-  authToken: string;
   page: number;
   formTitlesAndSubtitles: Array<object>;
 }
 
-const isUsernameAvailable = async (host: string, token: string, username: string) => {
-  const url = `${host}/api/v1/users/usernameCheck/${username}`;
+const isUsernameAvailable = async (host: string, username: string) => {
+  const url = `${host}/users/usernameCheck/${username}`;
   try {
     const response = await axios.get(url, {
       headers: {
@@ -31,33 +32,64 @@ const isUsernameAvailable = async (host: string, token: string, username: string
     });
     return response.data.data.available;
   } catch (error) {
-    console.error('err', error);
     return error;
   }
 };
 
-const UserDetails: FC<UserDetailsInterface> = ({
-  apiHost,
-  authToken,
-  page,
-  formTitlesAndSubtitles,
-}) => {
+export const action: ActionFunction = async ({ request }) => {
+  const formData = Object.fromEntries(await request.formData());
+
+  const url = `${process.env.API_HOST}/users/self`;
+  const { username, firstname, lastname, timezone } = formData;
+
+  const errors = {
+    username: username ? null : 'Username is required',
+    firstname: firstname ? null : 'firstname is required',
+    lastname: lastname ? null : 'lastname is required',
+    timezone: timezone ? null : 'Timezone is required',
+  };
+
+  const hasErrors = Object.values(errors).some((errorMessage) => errorMessage);
+  if (hasErrors) {
+    return json(errors);
+  }
+
+  try {
+    const cookieHeader = request.headers.get('Cookie');
+    await axios.patch(url, formData, {
+      headers: {
+        Cookie: cookieHeader,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return redirect('/onboarding/userCalendarDetails');
+  } catch (error) {
+    return error;
+  }
+};
+
+const UserDetails: FC<UserDetailsInterface> = () => {
   const errors = useActionData();
-  const initialUserDetails = {
+
+  const UserDetailErrors = {
     username: '',
     firstname: '',
     lastname: '',
     timezone: '',
   };
+
   const [userForm, setUserForm] = useState<UserFormInterface>(initialUserDetails);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | undefined>();
   const [query, setQuery] = useState<string>('');
+  const [userErrors, setUserErrors] = useState(UserDetailErrors);
+
   const submit = useSubmit();
 
   useEffect(() => {
     (async () => {
       if (query !== '') {
-        const res: boolean = await isUsernameAvailable(apiHost, authToken, query);
+        const res: boolean = await isUsernameAvailable(window.ENV.API_HOST, query);
         setUsernameAvailable(res);
       }
     })();
@@ -114,6 +146,18 @@ const UserDetails: FC<UserDetailsInterface> = ({
     }
     return null;
   };
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+
+    setUserErrors({ ...userErrors, [name]: '' });
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (value.trim() === '') {
+      setUserErrors({ ...userErrors, [name]: `${name} is required` });
+    }
+  };
 
   return (
     <Form onSubmit={handleSubmit} method="patch" className=" h-full flex flex-col">
@@ -127,7 +171,9 @@ const UserDetails: FC<UserDetailsInterface> = ({
               link="hap.day/"
               value={userForm.username}
               setValue={updateUsername}
-              err={usernameError() || errors?.username}
+              err={usernameError() || errors?.username || userErrors.username}
+              handleBlur={handleBlur}
+              handleFocus={handleFocus}
             />
           </div>
 
@@ -139,7 +185,9 @@ const UserDetails: FC<UserDetailsInterface> = ({
                 placeholder="Jane"
                 value={userForm.firstname}
                 setValue={updateFirstName}
-                err={errors?.firstname}
+                err={errors?.firstname || userErrors.firstname}
+                handleBlur={handleBlur}
+                handleFocus={handleFocus}
               />
             </div>
             <div className="basis-3/6 mx-1">
@@ -149,7 +197,9 @@ const UserDetails: FC<UserDetailsInterface> = ({
                 placeholder="Doe"
                 value={userForm.lastname}
                 setValue={updateLastName}
-                err={errors?.lastname}
+                err={errors?.lastname || userErrors.lastname}
+                handleBlur={handleBlur}
+                handleFocus={handleFocus}
               />
             </div>
           </div>
@@ -163,8 +213,9 @@ const UserDetails: FC<UserDetailsInterface> = ({
           label="Save & Next"
           size="medium"
           varient="primary"
-          disabled={page === formTitlesAndSubtitles.length - 1}
           type={'submit'}
+          style={'my-2'}
+          disabled={![...Object.values(userForm)].every((ele) => ele.length > 0)}
         />
       </div>
     </Form>

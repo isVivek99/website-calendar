@@ -15,18 +15,6 @@ export interface CalEvent extends Event {
   calendarId?: number;
   attendees?: Attendees[];
 }
-export interface backendCalEvent {
-  id?: string;
-  name?: string;
-  startTime?: Date | undefined;
-  endTime?: Date;
-  description?: string;
-  location: string;
-  ownerId: number;
-  eventTypeId: number;
-  calendarId: number;
-  isDeleted: boolean;
-}
 
 export interface CalendarEventProps {
   show?: boolean;
